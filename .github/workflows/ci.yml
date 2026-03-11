@@ -49,4 +49,4 @@ jobs:
       # Step 7: Build Docker image
       - name: Build Docker image
         run: |
-          docker build -t enterprise-devops-platform:latest app/
+          docker build -t enterprise-devops-platform:latest .
