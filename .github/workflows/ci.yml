@@ -25,8 +25,14 @@ jobs:
       # Step 3: Install dependencies
       - name: Install dependencies
         run: |
+          python -m pip install --upgrade pip
           pip install -r app/requirements.txt
           pip install pytest
+
+    # Step 4: Clean old Python cache
+      - name: Clean __pycache__
+        run: |
+          find . -type d -name "__pycache__" -exec rm -r {} +
 
       # Step 4: Run tests
       - name: Run Unit Tests
