@@ -39,20 +39,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
-          pip install pytest
-
-    # Add security Checks
-      - name: Install security scanner
-        run: pip install bandit
-
-      - name: Run security scan
-        run: bandit -r app
-      
-      - name: Install dependency scanner
-        run: pip install pip-audit
-
-      - name: Scan dependencies for vulnerabilities
-        run: pip-audit
+          pip install pytest bandit  pip-audit
 
       # Step 4: Clean Python cache
       - name: Clean __pycache__
@@ -67,6 +54,12 @@ jobs:
       # Step 6: Run tests
       - name: Run tests
         run: pytest
+
+      - name: Run security scan
+        run: bandit -r app 
+
+      - name: Scan dependencies for vulnerabilities
+        run: pip-audit
 
       # step 7 Build and Push docker image to docker Hub
       - name: Log in to Docker Hub
