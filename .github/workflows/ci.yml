@@ -19,6 +19,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+    # Optimise the builds to be faster
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       # Step 2: Set up Python
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
