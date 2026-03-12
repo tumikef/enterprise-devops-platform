@@ -1,0 +1,11 @@
+services:
+  web:
+    build:
+      context: .
+      dockerfile: /app/Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./app:/app/apP
+    environment:
+      - FLASK_ENV=dev
