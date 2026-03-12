@@ -18,11 +18,11 @@ jobs:
 
       # Checkout repository
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       # Cache pip dependencies (faster builds)
       - name: Cache pip dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/pip
           key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
@@ -31,7 +31,7 @@ jobs:
 
       # Setup Python
       - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -75,8 +75,12 @@ jobs:
 
           start=$(date +%s)
 
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} .
-
+          docker build \
+                -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} \
+                -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:latest \
+                -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.ref_name }} \
+                .
+                
           end=$(date +%s)
           build_time=$((end-start))
 
@@ -87,10 +91,10 @@ jobs:
         run: |
           docker images ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} \
           --format "Docker Image Size: {{.Size}}"
-
+          
       # Scan Docker image for vulnerabilities
       - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@master
+        uses: aquasecurity/trivy-action@0.24.0
         with:
           image-ref: ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
 
@@ -98,3 +102,5 @@ jobs:
       - name: Push Docker image to Docker Hub
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.ref_name }}
