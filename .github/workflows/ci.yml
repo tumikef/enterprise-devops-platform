@@ -75,16 +75,16 @@ jobs:
 
           start=$(date +%s)
 
-              # sanitize branch name (replace / with -)
+          # sanitize branch name (replace / with -)
           safe_branch=${GITHUB_REF_NAME//\//-}
       
           docker build \
+            -f app/Dockerfile \
             -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} \
             -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:latest \
             -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:$safe_branch \
-            .
-
-                
+            app
+  
           end=$(date +%s)
           build_time=$((end-start))
 
