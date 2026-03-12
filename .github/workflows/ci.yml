@@ -1,23 +1,26 @@
-name: DevOps CI
+name: DevOps CI Pipeline
 
-# Trigger pipeline on pushes or pull requests to these branches
 on:
   push:
-    branches: [ develop, main ]
+    branches:
+      - develop
+      - main
   pull_request:
-    branches: [ develop, main ]
+    branches:
+      - develop
+      - main
 
 jobs:
-  build-and-test:
+  test-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout your code
-      - name: Checkout code
+      # Step 1: Checkout repository
+      - name: Checkout repository
         uses: actions/checkout@v3
 
       # Step 2: Set up Python
-      - name: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
           python-version: 3.12
@@ -29,16 +32,21 @@ jobs:
           pip install -r app/requirements.txt
           pip install pytest
 
-    # Step 4: Clean old Python cache
+      # Step 4: Clean Python cache
       - name: Clean __pycache__
         run: |
           find . -type d -name "__pycache__" -exec rm -r {} +
 
-      # Step 4: Run tests
-      - name: Run Unit Tests
+      # Step 5: Set PYTHONPATH to project root
+      - name: Set PYTHONPATH
+        run: |
+          echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+
+      # Step 6: Run tests
+      - name: Run tests
         run: pytest
 
-      # step 5 Build and Push docker image to docker Hub
+      # step 7 Build and Push docker image to docker Hub
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
