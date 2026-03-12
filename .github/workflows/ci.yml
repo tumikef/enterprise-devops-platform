@@ -46,7 +46,13 @@ jobs:
       - name: Run tests
         run: pytest
 
-      # Step 7: Build Docker image
-      - name: Build Docker image
+      # step 7 Build and Push docker image to docker Hub
+      - name: Log in to Docker Hub
         run: |
-          docker build -t enterprise-devops-platform:latest .
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Build Docker image
+        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:dev .
+
+      - name: Push Docker image to Docker Hub
+        run: docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:dev
