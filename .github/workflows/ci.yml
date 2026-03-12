@@ -1,3 +1,4 @@
+```yaml
 name: DevOps CI Pipeline
 
 on:
@@ -15,11 +16,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout repository
+
+      # 1️⃣ Checkout repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
-    # Optimise the builds to be faster
+      # 2️⃣ Cache pip dependencies (faster builds)
       - name: Cache pip dependencies
         uses: actions/cache@v3
         with:
@@ -28,52 +30,73 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pip-
 
-      # Step 2: Set up Python
+      # 3️⃣ Setup Python
       - name: Set up Python 3.12
         uses: actions/setup-python@v4
         with:
-          python-version: 3.12
+          python-version: "3.12"
 
-      # Step 3: Install dependencies
+      # 4️⃣ Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r app/requirements.txt
-          pip install pytest bandit  pip-audit
+          pip install pytest bandit pip-audit
 
-      # Step 4: Clean Python cache
+      # 5️⃣ Clean Python cache
       - name: Clean __pycache__
         run: |
           find . -type d -name "__pycache__" -exec rm -r {} +
 
-      # Step 5: Set PYTHONPATH to project root
+      # 6️⃣ Set PYTHONPATH
       - name: Set PYTHONPATH
-        run: |
-          echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
+        run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
-      # Step 6: Run tests
+      # 7️⃣ Run tests
       - name: Run tests
         run: pytest
 
-      - name: Run security scan
+      # 8️⃣ Run security scan
+      - name: Run Bandit security scan
         run: bandit -r app -x B104 --exit-zero
 
+      # 9️⃣ Scan dependencies
       - name: Scan dependencies for vulnerabilities
         run: pip-audit
 
-      # step 7 Build and Push docker image to docker Hub
+      # 🔟 Login to Docker Hub
       - name: Log in to Docker Hub
         run: |
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      - name: Build Docker image
-        run: docker build -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} .
+      # 1️⃣1️⃣ Build Docker image + measure build time
+      - name: Build Docker image and measure build time
+        run: |
+          echo "Starting Docker build..."
 
-      - name: Scan Docker image for vulnerabilities
+          start=$(date +%s)
+
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} .
+
+          end=$(date +%s)
+          build_time=$((end-start))
+
+          echo "Docker Build Time: $build_time seconds"
+
+      # 1️⃣2️⃣ Display Docker image size
+      - name: Check Docker image size
+        run: |
+          docker images ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} \
+          --format "Docker Image Size: {{.Size}}"
+
+      # 1️⃣3️⃣ Scan Docker image for vulnerabilities
+      - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
-          
 
+      # 1️⃣4️⃣ Push Docker image
       - name: Push Docker image to Docker Hub
-        run: docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
+        run: |
+          docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
+```
