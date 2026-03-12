@@ -41,6 +41,18 @@ jobs:
           pip install -r app/requirements.txt
           pip install pytest
 
+    # Add security Checks
+      - name: Install security scanner
+        run: pip install bandit
+
+      - name: Run security scan
+        run: bandit -r app
+            - name: Install dependency scanner
+        run: pip install pip-audit
+
+      - name: Scan dependencies for vulnerabilities
+        run: pip-audit
+
       # Step 4: Clean Python cache
       - name: Clean __pycache__
         run: |
@@ -62,6 +74,11 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:dev .
+
+      - name: Scan Docker image for vulnerabilities
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:dev
 
       - name: Push Docker image to Docker Hub
         run: docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:dev
