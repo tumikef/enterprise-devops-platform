@@ -107,4 +107,4 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
           docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.ref_name }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:$safe_branch
