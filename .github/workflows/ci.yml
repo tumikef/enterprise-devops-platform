@@ -85,6 +85,7 @@ jobs:
             -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} \
             -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:latest \
             -t ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:$SAFE_BRANCH \
+            --label project=enterprise-devops-platform \
             app
 
           end=$(date +%s)
