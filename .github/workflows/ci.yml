@@ -120,11 +120,16 @@ jobs:
 
       # 1️⃣5️⃣ Setup Minikube + Kubectl
       #############################
-      - name: Set up Minikube
-        uses: manusa/actions-setup-minikube@v2.16.1
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
         with:
-          minikube-version: 'v1.30.1'
-          kubectl-version: '1.30.0'
+           minikube-version: '1.34.0'
+           driver: 'docker'
+           container-runtime: 'containerd'
+           kubernetes-version: 'v1.32.0'
+           cpus: '4'
+           memory: '4000m'
+           addons: 'ingress,dashboard'
 
       - name: Start Minikube
         run: |
