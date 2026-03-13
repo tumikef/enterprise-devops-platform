@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: enterprise-devops-app
 spec:
-  replicas: 1
+  replicas: 4
   selector:
     matchLabels:
       app: enterprise-devops-app
@@ -14,6 +14,6 @@ spec:
     spec:
       containers:
         - name: enterprise-devops-app
-          image: tummie/enterprise-devops-app:develop
+          image: tummie/enterprise-devops-app:latest
           ports:
             - containerPort: 5000
