@@ -116,38 +116,28 @@ jobs:
   # ==========================
   # Job 2: Kubernetes Deployment
   # ==========================
-  deploy-to-k8s:
-    runs-on: ubuntu-latest
-    needs: test-and-build   # Waits for the first job to succeed
-    steps:
-      # 1️⃣ Checkout repo
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #############################
 
-      # 2️⃣ Install kubectl CLI
-      - name: Install kubectl
-        uses: actions/setup-kubectl@v3
-        with:
-          version: v1.30.0
-
-      # 3️⃣ Set up Minikube for local testing
+      # 1️⃣5️⃣ Setup Minikube + Kubectl
+      #############################
       - name: Set up Minikube
-        uses: medyagh/setup-minikube@v2.2
+        uses: manusa/actions-setup-minikube@v3.12.0
         with:
-          minikube-version: '1.32.0'
-          driver: docker
+          minikube-version: 'v1.30.1'
+          kubectl-version: '1.30.0'
 
-      # 4️⃣ Start Minikube
       - name: Start Minikube
-        run: minikube start --driver=docker
+        run: |
+          minikube start --driver=docker
+          kubectl cluster-info
+      # Explanation: Prepares a local Kubernetes cluster for deployment testing.
 
-      # 5️⃣ Load Docker image into Minikube
-      - name: Load Docker image into Minikube
-        run: minikube image load ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }}
-
-      # 6️⃣ Deploy Kubernetes manifests
-      - name: Deploy to Kubernetes
+      #############################
+      # 1️⃣6️⃣ Deploy to Kubernetes
+      #############################
+      - name: Deploy to Minikube
         run: |
           kubectl apply -f kubernetes/deployment.yaml
           kubectl apply -f kubernetes/service.yaml
+          kubectl get pods
           kubectl rollout status deployment/enterprise-devops-app
