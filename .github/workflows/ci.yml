@@ -39,28 +39,31 @@ jobs:
 # =========================================
 # JOB 2 — RUN TESTS
 # =========================================
-  tests:
+ tests:
 
-    runs-on: ubuntu-latest
-    needs: code-quality
+  runs-on: ubuntu-latest
+  needs: code-quality
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.12"
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.12"
 
-      - name: Install dependencies
-        run: |
-          pip install -r app/requirements.txt
-          pip install pytest
+    - name: Install dependencies
+      run: |
+        pip install -r app/requirements.txt
+        pip install pytest
 
-      - name: Run tests
-        run: pytest
+    # IMPORTANT FIX
+    - name: Set PYTHONPATH
+      run: echo "PYTHONPATH=$(pwd)" >> $GITHUB_ENV
 
+    - name: Run tests
+      run: pytest
 
 # =========================================
 # JOB 3 — DEPENDENCY SECURITY SCAN
