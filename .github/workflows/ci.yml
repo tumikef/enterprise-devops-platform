@@ -91,12 +91,12 @@ jobs:
           build_time=$((end-start))
           echo "Docker Build Time: $build_time seconds"
 
-      # Step 13: Display Docker image size
+      # Step 13: Display Docker image size          
       - name: Check Docker image size
         run: |
-          docker images ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app:${{ github.sha }} \
-          --format "Docker Image Size: {{.Size}}"
-
+          docker images ${{ secrets.DOCKER_USERNAME }}/enterprise-devops-app \
+          --format "table {{.Repository}}\t{{.Tag}}\t{{.Size}}"
+          
       # Step 14: Scan Docker image with Trivy
       - name: Scan Docker image with Trivy
         uses: aquasecurity/trivy-action@0.24.0
