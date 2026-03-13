@@ -74,9 +74,11 @@ jobs:
       - name: Install pip-audit
         run: pip install pip-audit
 
-      - name: Scan dependencies
-        run: pip-audit --exit-zero
-
+      - name: Scan dependencies (non-blocking)
+        run: |
+          echo "Running pip-audit..."
+          pip-audit || echo "Vulnerabilities detected but continuing pipeline..."
+          
 
   # =========================================
   # JOB 4 — BUILD DOCKER IMAGE
