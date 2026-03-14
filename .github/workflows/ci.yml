@@ -107,27 +107,75 @@ jobs:
           format: table
           exit-code: 0
           
-  # ==============================
-  # JOB 5 — DEPLOY TO KUBERNETES
-  # ==============================
-  deploy-to-k8s:
-    runs-on: ubuntu-latest
-    needs: docker-build-push-scan
-    steps:
-      - uses: actions/checkout@v3
-      - uses: manusa/actions-setup-minikube@v2.16.1
-        with:
-          minikube version: '1.34.0'
-          kubernetes version: 'v1.30.0'
-          driver: 'docker'
-          github token: ${{ secrets.GITHUB_TOKEN }}
-      - run: |
-          kubectl cluster-info
-          kubectl get nodes
-      - run: |
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl apply -f kubernetes/service.yaml
-      - run: |
-          kubectl get pods
-          kubectl get services
-          kubectl rollout status deployment/enterprise-devops-app
+# ==============================
+# JOB — DEPLOY TO KUBERNETES
+# ==============================
+deploy-to-k8s:
+  runs-on: ubuntu-latest
+  needs: docker-build-push-scan
+
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Minikube
+      uses: manusa/actions-setup-minikube@v2.16.1
+      with:
+        minikube version: "1.34.0"
+        kubernetes version: "v1.30.0"
+        driver: docker
+        github token: ${{ secrets.GITHUB_TOKEN }}
+
+    - name: Verify Kubernetes cluster
+      run: |
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Deploy Kubernetes resources
+      run: |
+        kubectl apply -f kubernetes/
+
+    - name: Verify deployment
+      run: |
+        kubectl get pods -A
+        kubectl get services -A
+
+    - name: Wait for deployment rollout
+      run: |
+        kubectl rollout status deployment/enterprise-devops-app --timeout=120s
+
+
+# ==============================
+# JOB — TEST THE DEPLOYMENTS TO KUBERNETES
+# ==============================
+test-deployments:
+  runs-on: ubuntu-latest
+  needs: deploy-to-k8s   # runs automatically after deployment
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Verify cluster
+      run: |
+        echo "Checking Kubernetes cluster status..."
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Test application endpoint
+      run: |
+        echo "Port-forwarding enterprise-devops-app service..."
+        kubectl port-forward service/enterprise-devops-app 5000:5000 &
+        PORT_FORWARD_PID=$!
+        sleep 10  # give it time to start
+
+        echo "Testing application endpoint..."
+        if curl -f http://localhost:5000; then
+          echo "✅ Application is responding correctly."
+        else
+          echo "❌ Application test failed!"
+          kill $PORT_FORWARD_PID
+          exit 1
+        fi
+
+        # Kill port-forwarding after test
+        kill $PORT_FORWARD_PID
