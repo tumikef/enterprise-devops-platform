@@ -2,18 +2,55 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: enterprise-devops-app
+  labels:
+    app: enterprise-devops-app
+    environment: dev
 spec:
-  replicas: 1
+  replicas: 2  # Increase for availability
   selector:
     matchLabels:
       app: enterprise-devops-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
   template:
     metadata:
       labels:
         app: enterprise-devops-app
+        environment: dev
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
     spec:
       containers:
         - name: enterprise-devops-app
           image: tummie/enterprise-devops-app:develop
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          envFrom:
+            - configMapRef:
+                name: app-config
+            - secretRef:
+                name: app-secrets
