@@ -132,17 +132,18 @@ jobs:
 
       - name: Deploy Kubernetes resources
         run: |
-          kubectl apply -f kubernetes/namespace.yaml
-          kubectl apply -f kubernetes/pdb.yaml
-          kubectl apply -f kubernetes/service.yaml
-          kubectl apply -f kubernetes/deployment.yaml
-          kubectl apply -f kubernetes/hpa.yaml
           kubectl apply -f kubernetes/
+          kubectl apply -f kubernetes/namespace.yaml
 
       - name: Wait for deployment rollout
         run: |
-          kubectl rollout status deployment/enterprise-devops-app --timeout=120s
+          kubectl rollout status deployment/enterprise-devops-app -n enterprise-devops --timeout=120s
 
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n enterprise-devops
+          kubectl get svc -n enterprise-devops
+        
   # ==============================
   # JOB 6 — TEST DEPLOYED APPLICATION
   # ==============================
