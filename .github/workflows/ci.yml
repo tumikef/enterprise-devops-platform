@@ -133,10 +133,13 @@ jobs:
       - name: Deploy Kubernetes resources
         run: |
           kubectl apply -f kubernetes/namespace.yaml
-          kubectl apply -f kubernetes/deployment.yaml -n enterprise-devops
-          kubectl apply -f kubernetes/service.yaml -n enterprise-devops
-          kubectl apply -f kubernetes/hpa.yaml -n enterprise-devops
-          kubectl apply -f kubernetes/pdb.yaml -n enterprise-devops
+          kubectl apply -f kubernetes/configmap.yaml
+          kubectl apply -f kubernetes/secret.yaml
+          kubectl apply -f kubernetes/deployment.yaml
+          kubectl apply -f kubernetes/service.yaml
+          kubectl apply -f kubernetes/hpa.yaml
+          kubectl apply -f kubernetes/pdb.yaml
+          
 
       - name: Wait for deployment rollout
         run: |
