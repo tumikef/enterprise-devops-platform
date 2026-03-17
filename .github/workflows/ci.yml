@@ -149,15 +149,6 @@ jobs:
         run: |
           kubectl get pods -n enterprise-devops
           kubectl get svc -n enterprise-devops
-        
-  # ==============================
-  # JOB 6 — TEST DEPLOYED APPLICATION
-  # ==============================
-  test-deployments:
-    runs-on: ubuntu-latest
-    needs: deploy-to-k8s
-    steps:
-      - uses: actions/checkout@v3
 
       - name: Wait for pods to be ready
         run: |
