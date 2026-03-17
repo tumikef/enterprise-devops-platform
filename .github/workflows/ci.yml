@@ -152,24 +152,45 @@ jobs:
 
       - name: Wait for pods to be ready
         run: |
-          kubectl wait --for=condition=ready pod -l app=enterprise-devops-app --timeout=60s
-
+           kubectl wait --for=condition=ready pod \
+             -l app=enterprise-devops-app \
+             -n enterprise-devops \
+             --timeout=120s
+  
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n enterprise-devops
+          kubectl get svc -n enterprise-devops
+        
       - name: Test application endpoint
         run: |
-          echo "Port-forwarding enterprise-devops-app service..."
-          kubectl port-forward service/enterprise-devops-app 5000:5000 &
-          PORT_FORWARD_PID=$!
-          timeout 15s bash -c 'until curl -sf http://localhost:5000; do sleep 1; done'
-
-          echo "Testing application endpoint..."
-          if curl -f http://localhost:5000; then
-            echo "✅ Application is responding correctly."
-            echo "Test-deployments completed ✅" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "❌ Application test failed! Dumping pod logs..."
-            kubectl logs deployment/enterprise-devops-app
-            kill $PORT_FORWARD_PID
-            exit 1
-          fi
-
-          kill $PORT_FORWARD_PID
+          echo "Starting port-forward..."
+          kubectl port-forward service/enterprise-devops-app-service 5000:5000 -n enterprise-devops > /dev/null 2>&1 &
+          PF_PID=$!
+      
+          echo "Waiting for application..."
+          timeout 30s bash -c 'until curl -sf http://localhost:5000; do sleep 2; done'
+      
+          echo "Running health checks..."
+          curl -f http://localhost:5000/health
+          curl -f http://localhost:5000/ready
+      
+          echo "Running main endpoint test..."
+          curl -f http://localhost:5000
+      
+          echo "✅ Application is fully functional."
+          echo "Deployment + Tests SUCCESS ✅" >> $GITHUB_STEP_SUMMARY
+      
+          kill $PF_PID
+      
+      - name: Debug if failure
+        if: failure()
+        run: |
+          echo "===== PODS ====="
+          kubectl get pods -n enterprise-devops
+      
+          echo "===== DESCRIBE ====="
+          kubectl describe pods -n enterprise-devops
+      
+          echo "===== LOGS ====="
+          kubectl logs -l app=enterprise-devops-app -n enterprise-devops --tail=50
