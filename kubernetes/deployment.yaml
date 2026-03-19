@@ -33,7 +33,7 @@ spec:
             - containerPort: 5000
           readinessProbe:
             httpGet:
-              path: /health
+              path: /ready   # Matches Flask /ready endpoint
               port: 5000
             initialDelaySeconds: 5
             periodSeconds: 10
@@ -42,7 +42,7 @@ spec:
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /health
+              path: /health  # Matches Flask /health endpoint
               port: 5000
             initialDelaySeconds: 10
             periodSeconds: 15
