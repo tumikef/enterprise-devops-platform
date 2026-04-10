@@ -8,6 +8,7 @@ def home():
 
 @app.route("/health")
 def health():
+    return {"status": "healthy"}
     return jsonify(status="healthy"), 200
 
 @app.route("/ready")
