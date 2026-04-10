@@ -1,5 +1,5 @@
-📘 Enterprise DevOps Platform
-🚀 Overview
+**📘 Enterprise DevOps Platform
+🚀 Overview**
 
 The Enterprise DevOps Platform is a full CI/CD and Kubernetes-based deployment project demonstrating modern DevOps practices including containerization, orchestration, automation, and observability.
 
@@ -10,7 +10,9 @@ Kubernetes for orchestration
 Helm for deployment management
 GitHub Actions / CI pipelines (optional extension)
 Flask as backend service
-🏗️ Architecture
+
+**🏗️ Architecture**
+
 Developer
    ↓
 GitHub Repo
@@ -26,7 +28,8 @@ Helm Deployment
 Service (NodePort / Port Forward)
    ↓
 Application (Flask API)
-⚙️ Tech Stack
+
+**⚙️ Tech Stack**
 Containers: Docker
 Orchestration: Kubernetes (Minikube)
 Package Manager: Helm
@@ -34,7 +37,8 @@ CI/CD: GitHub Actions / Manual build flow
 Backend: Python Flask
 Registry: Docker Hub
 OS: Linux (WSL Ubuntu)
-📦 Features
+
+**📦 Features**
 Containerized Flask application
 Kubernetes deployment using Helm charts
 NodePort service exposure
@@ -43,25 +47,30 @@ Readiness & liveness probe support
 Rolling updates via Helm
 Port-forward support for local testing
 Full debugging and observability workflow
-🚀 Deployment Guide
-1️⃣ Clone Repository
+
+**🚀 Deployment Guide
+
+**1️⃣ Clone Repository
 git clone https://github.com/<your-username>/enterprise-devops-platform.git
 cd enterprise-devops-platform
-2️⃣ Build Docker Image
-eval $(minikube docker-env)
 
+**2️⃣ Build Docker Image**
+eval $(minikube docker-env)
 docker build -t tummie/enterprise-devops-app:develop app/
-3️⃣ Deploy with Helm
+
+**3️⃣ Deploy with Helm**
 helm install devops-app ./helm/devops-app -n enterprise-devops --create-namespace
 
 Upgrade:
-
 helm upgrade devops-app ./helm/devops-app -n enterprise-devops
+
 4️⃣ Check Deployment
 kubectl get pods -n enterprise-devops
 kubectl get svc -n enterprise-devops
 helm list -A
-🌐 Access Application
+
+**
+🌐 Access Application**
 Option 1: NodePort
 minikube ip
 
@@ -79,12 +88,13 @@ http://localhost:5000/health
 🩺 Health Check
 curl http://localhost:5000/health
 
-Response:
+**Response:**
 
 {
   "status": "healthy"
 }
-🔍 Troubleshooting
+
+**🔍 Troubleshooting**
 View Pods
 kubectl get pods -n enterprise-devops
 Logs
@@ -93,25 +103,28 @@ Events
 kubectl get events -n enterprise-devops --sort-by=.metadata.creationTimestamp
 Restart Deployment
 kubectl rollout restart deployment devops-app -n enterprise-devops
-📸 Screenshots (Add These)
+
+**📸 Screenshots (tba)**
 kubectl get pods
 kubectl get svc
 Helm release status
 Browser /health endpoint
 Port-forward working
-🧠 Key DevOps Learnings
+
+**🧠 Key DevOps Learnings**
 Kubernetes deployment lifecycle management
 Helm chart packaging and versioning
 Docker image build and registry workflow
 Debugging DNS, image pull, and probe failures
 Service exposure via NodePort and port-forward
 Real-world production troubleshooting
-🔥 Resume Impact Statement
 
-Built and deployed a containerized Flask application using Docker, Kubernetes, and Helm. Implemented CI/CD-style workflows, automated deployments, health probes, and troubleshooting of real-world cluster issues including DNS failures, ImagePullBackOff, and readiness probe misconfigurations.
-
+**
 🚀 Author
 
-Itumeleng Kefeletswe
+**
+Jane Itumeleng Kefeletswe
 DevOps Engineer | Cloud & Platform Engineering
-Gaborone, Botswana
+
+
+
