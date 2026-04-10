@@ -30,6 +30,7 @@ Service (NodePort / Port Forward)
 Application (Flask API)
 
 **⚙️ Tech Stack**
+
 Containers: Docker
 Orchestration: Kubernetes (Minikube)
 Package Manager: Helm
@@ -39,6 +40,7 @@ Registry: Docker Hub
 OS: Linux (WSL Ubuntu)
 
 **📦 Features**
+
 Containerized Flask application
 Kubernetes deployment using Helm charts
 NodePort service exposure
@@ -48,23 +50,27 @@ Rolling updates via Helm
 Port-forward support for local testing
 Full debugging and observability workflow
 
-**🚀 Deployment Guide
+**🚀 Deployment Guide**
 
-**1️⃣ Clone Repository
+**1️⃣ Clone Repository**
+
 git clone https://github.com/<your-username>/enterprise-devops-platform.git
 cd enterprise-devops-platform
 
 **2️⃣ Build Docker Image**
+
 eval $(minikube docker-env)
 docker build -t tummie/enterprise-devops-app:develop app/
 
 **3️⃣ Deploy with Helm**
+
 helm install devops-app ./helm/devops-app -n enterprise-devops --create-namespace
 
 Upgrade:
 helm upgrade devops-app ./helm/devops-app -n enterprise-devops
 
-4️⃣ Check Deployment
+**4️⃣ Check Deployment**
+
 kubectl get pods -n enterprise-devops
 kubectl get svc -n enterprise-devops
 helm list -A
