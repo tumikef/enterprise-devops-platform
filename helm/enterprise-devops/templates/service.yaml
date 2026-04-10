@@ -10,6 +10,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
       protocol: TCP
-      name: http     
+      name: http
   selector:
     {{- include "enterprise-devops.selectorLabels" . | nindent 4 }}
