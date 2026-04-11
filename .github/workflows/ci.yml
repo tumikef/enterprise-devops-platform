@@ -14,6 +14,7 @@ env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
 jobs:
+
   # ==============================
   # JOB 1 — CODE QUALITY
   # ==============================
@@ -101,12 +102,12 @@ jobs:
           docker images | grep enterprise-devops-app
 
       - name: Scan Docker image with Trivy
-        uses: aquasecurity/trivy-action@0.24.0
+        uses: aquasecurity/trivy-action@v0.35.0
         with:
           image-ref: ${{ env.IMAGE_TAG }}
           format: table
           exit-code: 0
-          
+
   # ==============================
   # JOB 5 — DEPLOY TO KUBERNETES
   # ==============================
@@ -115,19 +116,92 @@ jobs:
     needs: docker-build-push-scan
     steps:
       - uses: actions/checkout@v3
-      - uses: manusa/actions-setup-minikube@v2.16.1
+
+      - name: Setup Minikube
+        uses: manusa/actions-setup-minikube@v2.16.1
         with:
-          minikube version: '1.34.0'
-          kubernetes version: 'v1.30.0'
-          driver: 'docker'
+          minikube version: "1.34.0"
+          kubernetes version: "v1.30.0"
+          driver: docker
           github token: ${{ secrets.GITHUB_TOKEN }}
-      - run: |
+
+      - name: Verify Kubernetes cluster
+        run: |
           kubectl cluster-info
           kubectl get nodes
-      - run: |
+
+      - name: Deploy Kubernetes resources
+        run: |
+          echo "Applying Namespace..."
+          kubectl apply -f kubernetes/namespace.yaml
+
+          echo "Applying ConfigMap..."
+          kubectl apply -f kubernetes/configmap.yaml
+
+          echo "Applying Secrets..."
+          kubectl apply -f kubernetes/secret.yaml
+
+          echo "Applying Deployment..."
           kubectl apply -f kubernetes/deployment.yaml
+
+          echo "Applying Service..."
           kubectl apply -f kubernetes/service.yaml
-      - run: |
-          kubectl get pods
-          kubectl get services
-          kubectl rollout status deployment/enterprise-devops-app
+
+          echo "Applying HPA..."
+          kubectl apply -f kubernetes/hpa.yaml
+
+          echo "Applying PDB..."
+          kubectl apply -f kubernetes/pdb.yaml
+
+          echo "Waiting for deployment rollout..."
+          kubectl rollout status deployment/enterprise-devops-app -n enterprise-devops --timeout=180s
+          
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n enterprise-devops
+          kubectl get svc -n enterprise-devops
+
+      - name: Wait for pods to be ready
+        run: |
+           kubectl wait --for=condition=ready pod \
+             -l app=enterprise-devops-app \
+             -n enterprise-devops \
+             --timeout=120s
+  
+      - name: Verify deployment
+        run: |
+          kubectl get pods -n enterprise-devops
+          kubectl get svc -n enterprise-devops
+        
+      - name: Test application endpoint
+        run: |
+          echo "Starting port-forward..."
+          kubectl port-forward service/enterprise-devops-app-service 5000:5000 -n enterprise-devops > /dev/null 2>&1 &
+          PF_PID=$!
+      
+          echo "Waiting for application..."
+          timeout 30s bash -c 'until curl -sf http://localhost:5000; do sleep 2; done'
+      
+          echo "Running health checks..."
+          curl -f http://localhost:5000/health
+          curl -f http://localhost:5000/ready
+      
+          echo "Running main endpoint test..."
+          curl -f http://localhost:5000
+      
+          echo "✅ Application is fully functional."
+          echo "Deployment + Tests SUCCESS ✅" >> $GITHUB_STEP_SUMMARY
+      
+          kill $PF_PID
+      
+      - name: Debug if failure
+        if: failure()
+        run: |
+          echo "===== PODS ====="
+          kubectl get pods -n enterprise-devops
+      
+          echo "===== DESCRIBE ====="
+          kubectl describe pods -n enterprise-devops
+      
+          echo "===== LOGS ====="
+          kubectl logs -l app=enterprise-devops-app -n enterprise-devops --tail=50

@@ -1,0 +1,10 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: enterprise-devops-app-pdb
+  namespace: enterprise-devops
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: enterprise-devops-app

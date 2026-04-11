@@ -2,18 +2,57 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: enterprise-devops-app
+  namespace: enterprise-devops
+  labels:
+    app: enterprise-devops-app
+    environment: dev
 spec:
-  replicas: 4
+  replicas: 2  # Increase for availability
   selector:
     matchLabels:
       app: enterprise-devops-app
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
   template:
     metadata:
       labels:
         app: enterprise-devops-app
+        environment: dev
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "5000"
     spec:
       containers:
         - name: enterprise-devops-app
-          image: tummie/enterprise-devops-app:latest
+          image: tummie/enterprise-devops-app:develop
+          imagePullPolicy: Always
           ports:
             - containerPort: 5000
+          readinessProbe:
+            httpGet:
+              path: /ready   # Matches Flask /ready endpoint
+              port: 5000
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          livenessProbe:
+            httpGet:
+              path: /health  # Matches Flask /health endpoint
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 15
+            timeoutSeconds: 2
+            successThreshold: 1
+            failureThreshold: 3
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
