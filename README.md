@@ -124,6 +124,8 @@ kubectl rollout restart deployment devops-app -n enterprise-devops
 **📸 Screenshots**
 
 CI/CD pipeline success (GitHub Actions)
+<img width="1909" height="592" alt="image" src="https://github.com/user-attachments/assets/90bf4f67-eeca-4849-84ab-ac82eed6ce3f" />
+
 
 kubectl get pods
 <img width="1096" height="111" alt="image" src="https://github.com/user-attachments/assets/17bcd068-629f-47ac-ad22-17735f59cb64" />
