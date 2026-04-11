@@ -1,4 +1,11 @@
 **📘 Enterprise DevOps Platform
+
+![CI/CD Pipeline](https://github.com/tumikef/enterprise-devops-platform/actions/workflows/ci.yml/badge.svg)
+![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Deployed-blue)
+![Helm](https://img.shields.io/badge/Helm-Package-green)
+
+
 🚀 Overview**
 
 The Enterprise DevOps Platform is a full CI/CD and Kubernetes-based deployment project demonstrating modern DevOps practices including containerization, orchestration, automation, and observability.
