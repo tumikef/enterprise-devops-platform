@@ -1,0 +1,27 @@
+name: DevSecOps Security Scan
+
+on:
+  push:
+    branches: ["main", "develop"]
+  pull_request:
+
+jobs:
+  trivy-container-scan:
+    name: Trivy Container Scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: |
+          docker build -t enterprise-devops-app:latest app/
+
+      - name: Run Trivy scan (container vulnerabilities)
+        uses: aquasecurity/trivy-action@v0.35.0
+        with:
+          image-ref: "enterprise-devops-app:latest"
+          format: "table"
+          exit-code: "1"
+          severity: "CRITICAL,HIGH"
