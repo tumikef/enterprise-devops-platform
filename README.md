@@ -1,8 +1,10 @@
 ## 📘 Enterprise DevOps Platform
 
 ![CI/CD Pipeline](https://github.com/tumikef/enterprise-devops-platform/actions/workflows/ci.yml/badge.svg)
-![Docker](https://img.shields.io/badge/Docker-Enabled-blue)
-![Kubernetes](https://img.shields.io/badge/Kubernetes-Deployed-blue)
+![Security](https://img.shields.io/badge/Security-Trivy%20%7C%20Bandit%20%7C%20pip--audit-red)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![Kubernetes](https://img.shields.io/badge/Kubernetes-Orchestrated-blue)
+![DevSecOps](https://img.shields.io/badge/DevSecOps-Enabled-success)
 ![Helm](https://img.shields.io/badge/Helm-Package-green)
 
 ## 📌 Overview
